@@ -1,5 +1,6 @@
 import pygame
 
+from asteroidfield import PLAYER_SHOOT_COOLDOWN_SECONDS
 from circleshape import CircleShape
 from constants import (
     LINE_WIDTH,
@@ -15,6 +16,7 @@ class Player(CircleShape):
     def __init__(self, x: float, y: float):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
+        self.shoot_timer = 0
 
     def triangle(self) -> list[pygame.Vector2]:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -45,6 +47,7 @@ class Player(CircleShape):
         if keys[pygame.K_w]:
             self.move(dt)
 
+        self.shoot_timer -= dt
         if keys[pygame.K_SPACE]:
             self.shoot()
 
@@ -55,6 +58,11 @@ class Player(CircleShape):
         self.position += rotated_with_speed_vector
 
     def shoot(self) -> None:
+        if self.shoot_timer > 0:
+            return
+        else:
+            self.shoot_timer = PLAYER_SHOOT_COOLDOWN_SECONDS
+
         shot = Shot(self.position.x, self.position.y)
         v = pygame.Vector2(0, 1)
         r_v = v.rotate(self.rotation)
